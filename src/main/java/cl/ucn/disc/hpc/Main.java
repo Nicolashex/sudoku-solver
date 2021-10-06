@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -29,13 +31,36 @@ public class Main {
         File file = new File("sudoku.txt");
 
 
-
         Board board = readBoard(file);
 
-        for(int n = minCores ; n<=maxCores; n++){
-            board.initializeSolvingBoard();
-            long time = findSolutionsWithMultipleCores(n, board);
-            log.info("Time with {} cores: {} ms", n, time);
+        //Define the number of tests per core made.
+        final int numberOfIterations = 15;
+
+        for (int n = minCores; n <= maxCores; n++) {
+
+
+            List<Long> times = new ArrayList<>();
+            for (int m = 1; m <= numberOfIterations; m++) {
+                board.initializeSolvingBoard();
+                long time = findSolutionsWithMultipleCores(n, board);
+                times.add(time);
+
+            }
+
+            long min = Collections.min(times);
+            long max = Collections.max(times);
+
+            //Erase two non-characteristic values
+            times.remove(min);
+            times.remove(max);
+
+
+            //Get the average with stream magic!
+            double average = times.stream().mapToLong((x) -> x).average().getAsDouble();
+            log.info("Average time with {} cores: {} ms. Max time: {} ms. Min time: {}ms.", n, average, max, min);
+
+            //Print the board with the solution
+            board.printBoard();
 
 
         }
@@ -43,12 +68,10 @@ public class Main {
 
     }
 
-    private static long findSolutionsWithMultipleCores ( int cores, Board board) throws InterruptedException {
+    private static long findSolutionsWithMultipleCores(int cores, Board board) throws InterruptedException {
 
-        board.printBoard();
         final ExecutorService executorService = Executors.newFixedThreadPool(cores);
 
-        log.info("Finding a solution for the sudoku with {} cores", cores);
 
         StopWatch sw = StopWatch.createStarted();
         executorService.submit(() -> {
@@ -59,9 +82,8 @@ public class Main {
         long time = sw.getTime(TimeUnit.NANOSECONDS);
         int maxTime = 5;
 
-        if(executorService.awaitTermination(maxTime, TimeUnit.MINUTES)){
-            log.info("Founded a solution! with a time of {} ms:",time);
-            board.printBoard();
+        if (executorService.awaitTermination(maxTime, TimeUnit.MINUTES)) {
+            //log.info("Founded a solution! with a time of {} ms:",time);
         } else {
             log.warn("The executor didn't finish in {} minutes", maxTime);
         }
@@ -72,6 +94,7 @@ public class Main {
 
     /**
      * Search for a solution for the sudoku board given.
+     *
      * @param board the board requested for a solution
      * @return True if the sudoku has a solution. False otherwise
      */
@@ -100,6 +123,12 @@ public class Main {
         return true;
     }
 
+    /**
+     * Fill the board instance with a given board in a text file.
+     *
+     * @param file A file with the board.
+     * @return The board filled with the positions given
+     */
     private static Board readBoard(File file) {
 
         try {
