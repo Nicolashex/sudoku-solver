@@ -1,5 +1,7 @@
 package cl.ucn.disc.hpc;
 
+import java.util.Arrays;
+
 /**
  * A class that represents a board of sudoku. With all the methods
  * needed for the algorithm to solve it.
@@ -8,13 +10,17 @@ public class Board {
 
     private final int size;
     private final int boxSize;
-    private final int[][] board;
+    private int[][] board;
+    private int[][] defaultBoard;
+
 
 
     public Board(int size, int boxSize, int[][] startingBoard) {
         this.size = size;
         this.boxSize = boxSize;
-        this.board = startingBoard;
+        this.defaultBoard = startingBoard;
+        this.board = new int[size][size];
+
     }
 
     /**
@@ -122,6 +128,9 @@ public class Board {
         return size;
     }
 
+    /**
+     * Print the board with the actual values in their position.
+     */
     public void printBoard() {
         // A counter for the rows
         int countRow = 0;
@@ -159,4 +168,12 @@ public class Board {
     public void eraseValue(int row, int column) {
         this.board[row][column]=0;
     }
+    public void initializeSolvingBoard(){
+        for(int i=0; i<this.size; i++)
+            for(int j=0; j<defaultBoard[i].length; j++)
+                board[i][j]=defaultBoard[i][j];
+
+    }
+
+
 }

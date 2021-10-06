@@ -1,12 +1,16 @@
 package cl.ucn.disc.hpc;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The main Class.
@@ -25,17 +29,52 @@ public class Main {
         File file = new File("sudoku.txt");
 
 
+
         Board board = readBoard(file);
-        board.printBoard();
-        if(solveSudoku(board)){
-            System.out.println("Solved Succesfully");
-            board.printBoard();
+
+        for(int n = minCores ; n<=maxCores; n++){
+            board.initializeSolvingBoard();
+            long time = findSolutionsWithMultipleCores(n, board);
+            log.info("Time with {} cores: {} ms", n, time);
+
+
         }
-        else{
-            System.out.println("Cannot solve the board given");
-        }
+
+
     }
 
+    private static long findSolutionsWithMultipleCores ( int cores, Board board) throws InterruptedException {
+
+        board.printBoard();
+        final ExecutorService executorService = Executors.newFixedThreadPool(cores);
+
+        log.info("Finding a solution for the sudoku with {} cores", cores);
+
+        StopWatch sw = StopWatch.createStarted();
+        executorService.submit(() -> {
+            solveSudoku(board);
+
+        });
+        executorService.shutdown();
+        long time = sw.getTime(TimeUnit.NANOSECONDS);
+        int maxTime = 5;
+
+        if(executorService.awaitTermination(maxTime, TimeUnit.MINUTES)){
+            log.info("Founded a solution! with a time of {} ms:",time);
+            board.printBoard();
+        } else {
+            log.warn("The executor didn't finish in {} minutes", maxTime);
+        }
+        return time;
+
+
+    }
+
+    /**
+     * Search for a solution for the sudoku board given.
+     * @param board the board requested for a solution
+     * @return True if the sudoku has a solution. False otherwise
+     */
     private static boolean solveSudoku(Board board) {
         int size = board.getSize();
         for (int row = 0; row < size; row++) {
@@ -53,7 +92,6 @@ public class Main {
 
                     }
                     return false;
-
                 }
             }
 
