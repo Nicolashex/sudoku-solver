@@ -113,4 +113,50 @@ public class Board {
 
     }
 
+    /**
+     * Get the size of the board
+     *
+     * @return Size of the board
+     */
+    public int getSize() {
+        return size;
+    }
+
+    public void printBoard() {
+        // A counter for the rows
+        int countRow = 0;
+
+
+        for (int[] row : board) {
+            // A counter for the columns
+            int countCol = 0;
+
+            System.out.print("|");
+            for (int value : row) {
+                System.out.print(" " + value + " ");
+                if ((countCol + 1) % boxSize == 0) {
+                    System.out.print("|");
+                }
+                countCol++;
+            }
+
+            System.out.println();
+            if ((countRow + 1) % boxSize == 0) {
+                System.out.println("");
+            }
+            countRow++;
+        }
+    }
+
+    public boolean isEmpty(int row, int column) {
+        return board[row][column]==0;
+    }
+
+    public void fillWithValue(int testingValue, int row, int column) {
+        this.board[row][column]=testingValue;
+    }
+
+    public void eraseValue(int row, int column) {
+        this.board[row][column]=0;
+    }
 }
