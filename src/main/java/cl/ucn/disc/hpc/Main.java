@@ -57,7 +57,7 @@ public class Main {
 
             //Get the average with stream magic!
             double average = times.stream().mapToLong((x) -> x).average().getAsDouble();
-            log.info("Average time with {} cores: {} ms. Max time: {} ms. Min time: {}ms.", n, average, max, min);
+            log.info("Average time with {} cores: {} nano sec. Max time: {} nano sec. Min time: {} nano sec.", n, average, max, min);
 
             //Print the board with the solution
             board.printBoard();
