@@ -70,4 +70,6 @@ The results given may vary depending on the computer wich is tested.
     </tbody>
   </table>
 Graphics
-https://github.com/Nicolashex/sudoku-solver/blob/main/graphicthreads.PNG?raw=true
+
+![](https://github.com/Nicolashex/sudoku-solver/blob/main/graphicthreads.PNG?raw=true)
+
