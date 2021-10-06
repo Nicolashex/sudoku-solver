@@ -69,3 +69,5 @@ The results given may vary depending on the computer wich is tested.
         </tr>        
     </tbody>
   </table>
+Graphics
+https://github.com/Nicolashex/sudoku-solver/blob/main/graphicthreads.PNG?raw=true
